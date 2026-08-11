@@ -13,11 +13,19 @@
     }
 
     .btn-update {
-    background: linear-gradient(135deg, rgba(229, 184, 73, 0.15), rgba(247, 215, 116, 0.05));
+    /* Positionnement fixe en bas au centre */
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999; /* Garantit que le bouton reste au-dessus des cartes Yo-kai */
+
+    /* Design du bouton */
+    background: linear-gradient(135deg, #1d212c, #0f1117);
     border: 1px solid var(--accent-gold);
     color: var(--accent-gold-light);
-    padding: 8px 16px;
-    border-radius: 20px;
+    padding: 10px 20px;
+    border-radius: 25px;
     font-family: 'Poppins', sans-serif;
     font-size: 0.85rem;
     font-weight: 600;
@@ -25,20 +33,21 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-top: 10px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    
+    /* Ombre prononcée pour détacher le bouton du fond */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 10px rgba(229, 184, 73, 0.2);
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
 }
 
-/* Effet au survol ou à l'appui sur mobile */
+/* Effet à l'appui / survol */
 .btn-update:hover, .btn-update:active {
     background: var(--accent-gold);
     color: #0f1117;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(229, 184, 73, 0.3);
+    transform: translateX(-50%) scale(1.05); /* Conserve le centrage tout en grossissant légèrement */
+    box-shadow: 0 6px 24px rgba(229, 184, 73, 0.4);
 }
 
-/* Animation de l'icône lors du clic */
 .btn-update:active .btn-icon {
     transform: rotate(180deg);
     transition: transform 0.3s ease;
