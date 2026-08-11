@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mon Suivi Séries & Mangas</title>
+  <style>
+    body {
+      touch-action: manipulation;
+    }
+
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text);
+      padding: 1rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #fff;
+    }
+
+    /* Formulaire */
+    .add-form {
+      background: var(--card-bg);
+      padding: 1rem;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    input, select {
+      background: #334155;
+      border: 1px solid #475569;
+      color: var(--text);
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input[type="text"] { flex: 1; min-width: 180px; }
+    input[type="number"] { width: 80px; }
+    select { flex: 1; min-width: 110px; }
+
+    button.btn-add {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button.btn-add:hover {
+      background: var(--accent-hover);
+    }
+
+    /* Conteneur des filtres et tri */
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .filters, .sort-controls {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+      align-items: center;
+    }
+
+    .sort-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .filter-btn, .sort-btn {
+      background: var(--card-bg);
+      border: 1px solid #475569;
+      color: var(--text-muted);
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      cursor: pointer;
+      white-space: nowrap;
+      font-size: 0.9rem;
+    }
+
+    .filter-btn.active, .sort-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    /* Liste */
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .item-card {
+      background: var(--card-bg);
+      padding: 1rem;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .item-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      background: #334155;
+      color: var(--text-muted);
+      width: fit-content;
+      text-transform: capitalize;
+    }
+
+    .item-counter {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .counter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+      background: #0f172a;
+      padding: 0.2rem 0.4rem;
+      border-radius: 8px;
+    }
+
+    .counter-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-right: 0.2rem;
+    }
+
+    .btn-counter {
+      background: #334155;
+      border: none;
+      color: var(--text);
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+    }
+
+    .btn-counter:hover { background: #475569; }
+
+    .count-input {
+      background: #1e293b;
+      border: 1px solid var(--accent);
+      color: var(--text);
+      font-weight: bold;
+      width: 48px;
+      text-align: center;
+      padding: 0.2rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      -moz-appearance: textfield;
+    }
+
+    .count-input::-webkit-outer-spin-button,
+    .count-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .btn-delete {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.2rem;
+      margin-left: 0.5rem;
+      padding: 0.25rem;
+    }
+
+    .btn-delete:hover { color: var(--danger); }
+  </style>
+</head>
+<body>
+
+  <h1>🎬 Mon Suivi Médias</h1>
+
+  <!-- Formulaire d'ajout -->
+  <form class="add-form" id="media-form">
+    <input type="text" id="title" placeholder="Titre (ex: One Piece, Breaking Bad)" required>
+    <div class="form-group">
+      <select id="type" onchange="toggleFormInputs()">
+        <option value="anime">Anime</option>
+        <option value="serie">Série</option>
+        <option value="manga">Manga</option>
+      </select>
+      
+      <!-- Inputs pour Anime/Série -->
+      <div id="standard-inputs">
+        <input type="number" id="progress" placeholder="N° Ep" min="0" value="1">
+      </div>
+
+      <!-- Inputs simultanés pour Manga (Tome ET Chapitre) -->
+      <div id="manga-inputs" style="display: none; gap: 0.5rem;">
+        <input type="number" id="tome-progress" placeholder="Tome" min="0" value="1">
+        <input type="number" id="chap-progress" placeholder="Chap." min="0" value="1">
+      </div>
+
+      <button type="submit" class="btn-add">Ajouter</button>
+    </div>
+  </form>
+
+  <!-- Filtres et Tri -->
+  <div class="controls">
+    <div class="filters">
+      <button class="filter-btn active" onclick="filterList('all', this)">Tous</button>
+      <button class="filter-btn" onclick="filterList('anime', this)">Animes</button>
+      <button class="filter-btn" onclick="filterList('serie', this)">Séries</button>
+      <button class="filter-btn" onclick="filterList('manga', this)">Mangas</button>
+    </div>
+
+    <div class="sort-controls">
+      <span class="sort-label">Trier par :</span>
+      <button class="sort-btn active" onclick="setSortMode('date', this)">Récents</button>
+      <button class="sort-btn" onclick="setSortMode('az', this)">A-Z</button>
+      <button class="sort-btn" onclick="setSortMode('za', this)">Z-A</button>
+    </div>
+  </div>
+
+  <!-- Liste des éléments -->
+  <div class="list" id="media-list"></div>
+
+  <script>
+    let mediaData = JSON.parse(localStorage.getItem('myMediaTracker')) || [];
+    let currentFilter = 'all';
+    let currentSort = 'date';
+
+    const form = document.getElementById('media-form');
+    const mediaList = document.getElementById('media-list');
+    const typeSelect = document.getElementById('type');
+
+    function toggleFormInputs() {
+      const type = typeSelect.value;
+      const stdInputs = document.getElementById('standard-inputs');
+      const mangaInputs = document.getElementById('manga-inputs');
+
+      if (type === 'manga') {
+        stdInputs.style.display = 'none';
+        mangaInputs.style.display = 'flex';
+      } else {
+        stdInputs.style.display = 'block';
+        mangaInputs.style.display = 'none';
+      }
+    }
+
+    toggleFormInputs();
+
+    function saveData() {
+      localStorage.setItem('myMediaTracker', JSON.stringify(mediaData));
+      renderList();
+    }
+
+    // Ajouter un élément
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('title').value.trim();
+      const type = typeSelect.value;
+
+      if (title) {
+        if (type === 'manga') {
+          const tome = parseInt(document.getElementById('tome-progress').value) || 0;
+          const chapitre = parseInt(document.getElementById('chap-progress').value) || 0;
+          mediaData.push({ id: Date.now(), title, type, tome, chapitre });
+        } else {
+          const progress = parseInt(document.getElementById('progress').value) || 0;
+          mediaData.push({ id: Date.now(), title, type, progress });
+        }
+        saveData();
+        form.reset();
+        toggleFormInputs();
+        document.getElementById('progress').value = 1;
+        document.getElementById('tome-progress').value = 1;
+        document.getElementById('chap-progress').value = 1;
+      }
+    });
+
+    // Ajuster avec + / - pour les mangas (field = 'tome' ou 'chapitre')
+    function updateMangaProgress(id, field, change) {
+      mediaData = mediaData.map(item => {
+        if (item.id === id) {
+          const currentVal = item[field] || 0;
+          const newVal = Math.max(0, currentVal + change);
+          return { ...item, [field]: newVal };
+        }
+        return item;
+      });
+      saveData();
+    }
+
+    // Saisie directe manga
+    function setMangaProgressDirect(id, field, value) {
+      const val = parseInt(value);
+      if (isNaN(val) || val < 0) return;
+
+      mediaData = mediaData.map(item => {
+        if (item.id === id) {
+          return { ...item, [field]: val };
+        }
+        return item;
+      });
+      saveData();
+    }
+
+    // Ajuster avec les boutons - / + pour Animes/Séries
+    function updateProgress(id, change) {
+      mediaData = mediaData.map(item => {
+        if (item.id === id) {
+          const newProgress = Math.max(0, (item.progress || 0) + change);
+          return { ...item, progress: newProgress };
+        }
+        return item;
+      });
+      saveData();
+    }
+
+    // Saisie directe Anime/Série
+    function setProgressDirect(id, value) {
+      const val = parseInt(value);
+      if (isNaN(val) || val < 0) return;
+
+      mediaData = mediaData.map(item => {
+        if (item.id === id) {
+          return { ...item, progress: val };
+        }
+        return item;
+      });
+      saveData();
+    }
+
+    // Supprimer un élément
+    function deleteItem(id) {
+      if (confirm('Voulez-vous vraiment supprimer cet élément ?')) {
+        mediaData = mediaData.filter(item => item.id !== id);
+        saveData();
+      }
+    }
+
+    // Filtrer la liste
+    function filterList(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderList();
+    }
+
+    // Changer le mode de tri
+    function setSortMode(sortMode, btn) {
+      currentSort = sortMode;
+      document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderList();
+    }
+
+    // Rendu de la liste
+    function renderList() {
+      mediaList.innerHTML = '';
+
+      let filteredData = currentFilter === 'all' 
+        ? [...mediaData] 
+        : mediaData.filter(item => item.type === currentFilter);
+
+      if (currentSort === 'az') {
+        filteredData.sort((a, b) => a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' }));
+      } else if (currentSort === 'za') {
+        filteredData.sort((a, b) => b.title.localeCompare(a.title, 'fr', { sensitivity: 'base' }));
+      } else {
+        filteredData.sort((a, b) => b.id - a.id);
+      }
+
+      if (filteredData.length === 0) {
+        mediaList.innerHTML = `<p style="text-align: center; color: var(--text-muted); margin-top: 2rem;">Aucun élément trouvé.</p>`;
+        return;
+      }
+
+      filteredData.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+
+        let counterHtml = '';
+
+        if (item.type === 'manga') {
+          const tomeVal = item.tome !== undefined ? item.tome : 0;
+          const chapVal = item.chapitre !== undefined ? item.chapitre : (item.progress || 0);
+
+          counterHtml = `
+            <div class="counter-group">
+              <span class="counter-label">Vol.</span>
+              <button class="btn-counter" onclick="updateMangaProgress(${item.id}, 'tome', -1)">-</button>
+              <input type="number" 
+                     class="count-input" 
+                     value="${tomeVal}" 
+                     min="0"
+                     onchange="setMangaProgressDirect(${item.id}, 'tome', this.value)">
+              <button class="btn-counter" onclick="updateMangaProgress(${item.id}, 'tome', 1)">+</button>
+            </div>
+
+            <div class="counter-group">
+              <span class="counter-label">Ch.</span>
+              <button class="btn-counter" onclick="updateMangaProgress(${item.id}, 'chapitre', -1)">-</button>
+              <input type="number" 
+                     class="count-input" 
+                     value="${chapVal}" 
+                     min="0"
+                     onchange="setMangaProgressDirect(${item.id}, 'chapitre', this.value)">
+              <button class="btn-counter" onclick="updateMangaProgress(${item.id}, 'chapitre', 1)">+</button>
+            </div>
+          `;
+        } else {
+          counterHtml = `
+            <div class="counter-group">
+              <span class="counter-label">Ep.</span>
+              <button class="btn-counter" onclick="updateProgress(${item.id}, -1)">-</button>
+              <input type="number" 
+                     class="count-input" 
+                     value="${item.progress || 0}" 
+                     min="0"
+                     onchange="setProgressDirect(${item.id}, this.value)">
+              <button class="btn-counter" onclick="updateProgress(${item.id}, 1)">+</button>
+            </div>
+          `;
+        }
+
+        card.innerHTML = `
+          <div class="item-info">
+            <span class="item-title">${item.title}</span>
+            <span class="badge">${item.type}</span>
+          </div>
+          <div class="item-counter">
+            ${counterHtml}
+            <button class="btn-delete" onclick="deleteItem(${item.id})" title="Supprimer">🗑️</button>
+          </div>
+        `;
+
+        mediaList.appendChild(card);
+      });
+    }
+
+    renderList();
+  </script>
+</body>
+</html>
