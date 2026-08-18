@@ -1,288 +1,394 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Tracker de série</title>
-  <button class="btn-update" onclick="window.location.reload(true)">
-    <span class="btn-icon">🔄</span> Mettre à jour
-</button>
-  <style>
-    body {
-      touch-action: manipulation;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tracker de série</title>
+<style>
+  :root {
+    --ink: #15151a;
+    --surface: #1e1e25;
+    --surface-2: #262630;
+    --paper: #f3efe6;
+    --muted: #8d8d96;
+    --line: #313139;
+    --danger: #e8483a;
 
-    .btn-update {
-    /* Positionnement fixe en bas au centre */
+    --anime: #5ac8fa;
+    --serie: #f2b84b;
+    --manga: #e8483a;
+
+    --accent-gold: #f2b84b;
+    --accent-gold-light: #ffd98a;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    touch-action: manipulation;
+    background-color: var(--ink);
+    background-image: radial-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+    background-size: 14px 14px;
+    color: var(--paper);
+    padding: 1.1rem 1rem 6.5rem;
+    max-width: 720px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+
+  /* ---------- Header ---------- */
+  header {
+    text-align: center;
+    margin-bottom: 1.6rem;
+  }
+
+  .eyebrow {
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.35rem;
+  }
+
+  h1 {
+    font-family: "Arial Black", "Helvetica Neue", sans-serif;
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    font-size: 1.9rem;
+    color: var(--paper);
+    transform: skewX(-3deg);
+  }
+
+  .tri-rule {
+    display: flex;
+    height: 4px;
+    width: 130px;
+    margin: 0.7rem auto 0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .tri-rule span { flex: 1; }
+  .tri-rule span:nth-child(1) { background: var(--anime); }
+  .tri-rule span:nth-child(2) { background: var(--serie); }
+  .tri-rule span:nth-child(3) { background: var(--manga); }
+
+  /* ---------- Formulaire ---------- */
+  .add-form {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 1rem;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.5);
+  }
+
+  .form-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  input, select {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    color: var(--paper);
+    padding: 0.75rem 0.85rem;
+    border-radius: 9px;
+    font-size: 1rem;
+    outline: none;
+    min-height: 44px;
+  }
+
+  input:focus, select:focus {
+    border-color: var(--serie);
+  }
+
+  input[type="text"] { flex: 1; min-width: 180px; }
+  input[type="number"] { width: 84px; }
+  select {
+    flex: 1;
+    min-width: 110px;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: calc(100% - 16px) center, calc(100% - 11px) center;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    padding-right: 2rem;
+  }
+
+  #manga-inputs { display: none; gap: 0.5rem; }
+
+  button.btn-add {
+    background: var(--paper);
+    color: var(--ink);
+    border: none;
+    padding: 0.8rem 1.25rem;
+    border-radius: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.85rem;
+    cursor: pointer;
+    min-height: 44px;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+
+  button.btn-add:active {
+    transform: scale(0.96);
+    background: var(--serie);
+  }
+
+  /* ---------- Filtres et tri ---------- */
+  .controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .filters, .sort-controls {
+    display: flex;
+    gap: 1.1rem;
+    overflow-x: auto;
+    padding-bottom: 0.3rem;
+    align-items: center;
+  }
+
+  .sort-label {
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .filter-btn, .sort-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    padding: 0.4rem 0.1rem;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 0.88rem;
+    font-weight: 600;
+    min-height: 36px;
+  }
+
+  .filter-btn.active, .sort-btn.active {
+    color: var(--paper);
+    border-bottom-color: var(--serie);
+  }
+
+  /* ---------- Liste ---------- */
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .item-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--muted);
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.6rem;
+    box-shadow: 0 4px 12px -6px rgba(0, 0, 0, 0.5);
+  }
+
+  .item-card[data-type="anime"] { border-left-color: var(--anime); }
+  .item-card[data-type="serie"] { border-left-color: var(--serie); }
+  .item-card[data-type="manga"] { border-left-color: var(--manga); }
+
+  .item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+  }
+
+  .item-title {
+    font-weight: 700;
+    font-size: 1.02rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    width: fit-content;
+  }
+
+  .badge::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+  .item-card[data-type="anime"] .badge::before { background: var(--anime); }
+  .item-card[data-type="serie"] .badge::before { background: var(--serie); }
+  .item-card[data-type="manga"] .badge::before { background: var(--manga); }
+
+  .item-counter {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .counter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    padding: 0.25rem 0.4rem;
+    border-radius: 999px;
+  }
+
+  .counter-label {
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 0.1rem;
+  }
+
+  .btn-counter {
+    background: var(--ink);
+    border: none;
+    color: var(--paper);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+    flex-shrink: 0;
+  }
+
+  .btn-counter:active { background: var(--serie); color: var(--ink); }
+
+  .count-input {
+    background: transparent;
+    border: none;
+    color: var(--paper);
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+    font-weight: 700;
+    width: 40px;
+    text-align: center;
+    padding: 0.2rem;
+    font-size: 0.95rem;
+    -moz-appearance: textfield;
+  }
+
+  .count-input::-webkit-outer-spin-button,
+  .count-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .btn-delete {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1.15rem;
+    margin-left: 0.3rem;
+    padding: 0.4rem;
+  }
+
+  .btn-delete:active { color: var(--danger); }
+
+  /* ---------- Bouton de mise à jour ---------- */
+  .btn-update {
     position: fixed;
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 9999; /* Garantit que le bouton reste au-dessus des cartes Yo-kai */
+    z-index: 9999;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
 
-    /* Design du bouton */
-    background: linear-gradient(135deg, #1d212c, #0f1117);
+    background: linear-gradient(135deg, var(--surface), var(--ink));
     border: 1px solid var(--accent-gold);
     color: var(--accent-gold-light);
     padding: 10px 20px;
     border-radius: 25px;
-    font-family: 'Poppins', sans-serif;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    
-    /* Ombre prononcée pour détacher le bouton du fond */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 10px rgba(229, 184, 73, 0.2);
+
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 10px rgba(242, 184, 75, 0.2);
     backdrop-filter: blur(8px);
     transition: all 0.2s ease;
-}
+  }
 
-/* Effet à l'appui / survol */
-.btn-update:hover, .btn-update:active {
+  .btn-update:active {
     background: var(--accent-gold);
-    color: #0f1117;
-    transform: translateX(-50%) scale(1.05); /* Conserve le centrage tout en grossissant légèrement */
-    box-shadow: 0 6px 24px rgba(229, 184, 73, 0.4);
-}
+    color: var(--ink);
+    transform: translateX(-50%) scale(1.05);
+    box-shadow: 0 6px 24px rgba(242, 184, 75, 0.4);
+  }
 
-.btn-update:active .btn-icon {
+  .btn-update:active .btn-icon {
     transform: rotate(180deg);
     transition: transform 0.3s ease;
-}
-    :root {
-      --bg-color: #0f172a;
-      --card-bg: #1e293b;
-      --accent: #6366f1;
-      --accent-hover: #4f46e5;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --danger: #ef4444;
-    }
+  }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
+  .btn-icon { transition: transform 0.3s ease; }
 
-    body {
-      background-color: var(--bg-color);
-      color: var(--text);
-      padding: 1rem;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 1.5rem;
-      color: #fff;
-    }
-
-    /* Formulaire */
-    .add-form {
-      background: var(--card-bg);
-      padding: 1rem;
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-    }
-
-    .form-group {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-
-    input, select {
-      background: #334155;
-      border: 1px solid #475569;
-      color: var(--text);
-      padding: 0.75rem;
-      border-radius: 8px;
-      font-size: 1rem;
-      outline: none;
-    }
-
-    input[type="text"] { flex: 1; min-width: 180px; }
-    input[type="number"] { width: 80px; }
-    select { flex: 1; min-width: 110px; }
-
-    button.btn-add {
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 0.75rem 1.25rem;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    button.btn-add:hover {
-      background: var(--accent-hover);
-    }
-
-    /* Conteneur des filtres et tri */
-    .controls {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-    }
-
-    .filters, .sort-controls {
-      display: flex;
-      gap: 0.5rem;
-      overflow-x: auto;
-      padding-bottom: 0.25rem;
-      align-items: center;
-    }
-
-    .sort-label {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-    }
-
-    .filter-btn, .sort-btn {
-      background: var(--card-bg);
-      border: 1px solid #475569;
-      color: var(--text-muted);
-      padding: 0.4rem 0.8rem;
-      border-radius: 20px;
-      cursor: pointer;
-      white-space: nowrap;
-      font-size: 0.9rem;
-    }
-
-    .filter-btn.active, .sort-btn.active {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent);
-    }
-
-    /* Liste */
-    .list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .item-card {
-      background: var(--card-bg);
-      padding: 1rem;
-      border-radius: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-
-    .item-info {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-
-    .item-title {
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
-
-    .badge {
-      display: inline-block;
-      font-size: 0.75rem;
-      padding: 0.15rem 0.5rem;
-      border-radius: 4px;
-      background: #334155;
-      color: var(--text-muted);
-      width: fit-content;
-      text-transform: capitalize;
-    }
-
-    .item-counter {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .counter-group {
-      display: flex;
-      align-items: center;
-      gap: 0.2rem;
-      background: #0f172a;
-      padding: 0.2rem 0.4rem;
-      border-radius: 8px;
-    }
-
-    .counter-label {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-right: 0.2rem;
-    }
-
-    .btn-counter {
-      background: #334155;
-      border: none;
-      color: var(--text);
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      font-size: 1.1rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      touch-action: manipulation;
-    }
-
-    .btn-counter:hover { background: #475569; }
-
-    .count-input {
-      background: #1e293b;
-      border: 1px solid var(--accent);
-      color: var(--text);
-      font-weight: bold;
-      width: 48px;
-      text-align: center;
-      padding: 0.2rem;
-      border-radius: 6px;
-      font-size: 0.95rem;
-      -moz-appearance: textfield;
-    }
-
-    .count-input::-webkit-outer-spin-button,
-    .count-input::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-
-    .btn-delete {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 1.2rem;
-      margin-left: 0.5rem;
-      padding: 0.25rem;
-    }
-
-    .btn-delete:hover { color: var(--danger); }
-  </style>
+  .empty-state {
+    text-align: center;
+    color: var(--muted);
+    margin-top: 2.5rem;
+    font-size: 0.9rem;
+  }
+</style>
 </head>
 <body>
 
-  <h1>🎬 Tracker de séries 🎬</h1>
+  <header>
+    <div class="eyebrow">Anime · Série · Manga</div>
+    <h1>Tracker de séries</h1>
+    <div class="tri-rule"><span></span><span></span><span></span></div>
+  </header>
 
   <!-- Formulaire d'ajout -->
   <form class="add-form" id="media-form">
@@ -293,14 +399,12 @@
         <option value="serie">Série</option>
         <option value="manga">Manga</option>
       </select>
-      
-      <!-- Inputs pour Anime/Série -->
+
       <div id="standard-inputs">
         <input type="number" id="progress" placeholder="N° Ep" min="0" value="1">
       </div>
 
-      <!-- Inputs simultanés pour Manga (Tome ET Chapitre) -->
-      <div id="manga-inputs" style="display: none; gap: 0.5rem;">
+      <div id="manga-inputs">
         <input type="number" id="tome-progress" placeholder="Tome" min="0" value="1">
         <input type="number" id="chap-progress" placeholder="Chap." min="0" value="1">
       </div>
@@ -328,6 +432,10 @@
 
   <!-- Liste des éléments -->
   <div class="list" id="media-list"></div>
+
+  <button class="btn-update" onclick="window.location.reload(true)">
+    <span class="btn-icon">🔄</span> Mettre à jour
+  </button>
 
   <script>
     let mediaData = JSON.parse(localStorage.getItem('myMediaTracker')) || [];
@@ -359,7 +467,6 @@
       renderList();
     }
 
-    // Ajouter un élément
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       const title = document.getElementById('title').value.trim();
@@ -383,7 +490,6 @@
       }
     });
 
-    // Ajuster avec + / - pour les mangas (field = 'tome' ou 'chapitre')
     function updateMangaProgress(id, field, change) {
       mediaData = mediaData.map(item => {
         if (item.id === id) {
@@ -396,7 +502,6 @@
       saveData();
     }
 
-    // Saisie directe manga
     function setMangaProgressDirect(id, field, value) {
       const val = parseInt(value);
       if (isNaN(val) || val < 0) return;
@@ -410,7 +515,6 @@
       saveData();
     }
 
-    // Ajuster avec les boutons - / + pour Animes/Séries
     function updateProgress(id, change) {
       mediaData = mediaData.map(item => {
         if (item.id === id) {
@@ -422,7 +526,6 @@
       saveData();
     }
 
-    // Saisie directe Anime/Série
     function setProgressDirect(id, value) {
       const val = parseInt(value);
       if (isNaN(val) || val < 0) return;
@@ -436,7 +539,6 @@
       saveData();
     }
 
-    // Supprimer un élément
     function deleteItem(id) {
       if (confirm('Voulez-vous vraiment supprimer cet élément ?')) {
         mediaData = mediaData.filter(item => item.id !== id);
@@ -444,7 +546,6 @@
       }
     }
 
-    // Filtrer la liste
     function filterList(filter, btn) {
       currentFilter = filter;
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -452,7 +553,6 @@
       renderList();
     }
 
-    // Changer le mode de tri
     function setSortMode(sortMode, btn) {
       currentSort = sortMode;
       document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
@@ -460,12 +560,11 @@
       renderList();
     }
 
-    // Rendu de la liste
     function renderList() {
       mediaList.innerHTML = '';
 
-      let filteredData = currentFilter === 'all' 
-        ? [...mediaData] 
+      let filteredData = currentFilter === 'all'
+        ? [...mediaData]
         : mediaData.filter(item => item.type === currentFilter);
 
       if (currentSort === 'az') {
@@ -477,13 +576,14 @@
       }
 
       if (filteredData.length === 0) {
-        mediaList.innerHTML = `<p style="text-align: center; color: var(--text-muted); margin-top: 2rem;">Aucun élément trouvé.</p>`;
+        mediaList.innerHTML = `<p class="empty-state">Aucun élément trouvé.</p>`;
         return;
       }
 
       filteredData.forEach(item => {
         const card = document.createElement('div');
         card.className = 'item-card';
+        card.dataset.type = item.type;
 
         let counterHtml = '';
 
@@ -495,9 +595,9 @@
             <div class="counter-group">
               <span class="counter-label">Vol.</span>
               <button class="btn-counter" onclick="updateMangaProgress(${item.id}, 'tome', -1)">-</button>
-              <input type="number" 
-                     class="count-input" 
-                     value="${tomeVal}" 
+              <input type="number"
+                     class="count-input"
+                     value="${tomeVal}"
                      min="0"
                      onchange="setMangaProgressDirect(${item.id}, 'tome', this.value)">
               <button class="btn-counter" onclick="updateMangaProgress(${item.id}, 'tome', 1)">+</button>
@@ -506,9 +606,9 @@
             <div class="counter-group">
               <span class="counter-label">Ch.</span>
               <button class="btn-counter" onclick="updateMangaProgress(${item.id}, 'chapitre', -1)">-</button>
-              <input type="number" 
-                     class="count-input" 
-                     value="${chapVal}" 
+              <input type="number"
+                     class="count-input"
+                     value="${chapVal}"
                      min="0"
                      onchange="setMangaProgressDirect(${item.id}, 'chapitre', this.value)">
               <button class="btn-counter" onclick="updateMangaProgress(${item.id}, 'chapitre', 1)">+</button>
@@ -519,9 +619,9 @@
             <div class="counter-group">
               <span class="counter-label">Ep.</span>
               <button class="btn-counter" onclick="updateProgress(${item.id}, -1)">-</button>
-              <input type="number" 
-                     class="count-input" 
-                     value="${item.progress || 0}" 
+              <input type="number"
+                     class="count-input"
+                     value="${item.progress || 0}"
                      min="0"
                      onchange="setProgressDirect(${item.id}, this.value)">
               <button class="btn-counter" onclick="updateProgress(${item.id}, 1)">+</button>
