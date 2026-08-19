@@ -187,6 +187,7 @@
     font-size: 0.88rem;
     font-weight: 600;
     min-height: 36px;
+    transition: color 0.2s ease, border-color 0.2s ease;
   }
 
   .filter-btn.active, .sort-btn.active {
@@ -205,18 +206,124 @@
     background: var(--surface);
     border: 1px solid var(--line);
     border-left: 4px solid var(--muted);
-    padding: 0.9rem 1rem;
-    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    border-radius: 14px;
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    gap: 0.6rem;
+    gap: 0.7rem;
     box-shadow: 0 4px 12px -6px rgba(0, 0, 0, 0.5);
+    animation: card-in 0.25s ease both;
+    transition: opacity 0.25s ease, border-color 0.25s ease;
+  }
+
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .item-card[data-type="anime"] { border-left-color: var(--anime); }
   .item-card[data-type="serie"] { border-left-color: var(--serie); }
   .item-card[data-type="manga"] { border-left-color: var(--manga); }
+
+  .item-card.is-finished {
+    border-left-color: #4caf6d;
+  }
+
+  .item-card.is-finished .item-title {
+    color: var(--muted);
+    text-decoration: line-through;
+    text-decoration-color: #4caf6d80;
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+
+  .card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+  }
+
+  .icon-btn {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    color: var(--muted);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+
+  .icon-btn:active {
+    transform: scale(0.9);
+  }
+
+  .btn-finish-icon.active {
+    background: #4caf6d;
+    border-color: #4caf6d;
+    color: var(--ink);
+  }
+
+  .btn-delete-icon:active {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: var(--paper);
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--line);
+    margin: 0 -1.1rem;
+  }
+
+  .season-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .season-label {
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .season-label b { color: var(--paper); font-weight: 700; }
+
+  .btn-next-season {
+    background: transparent;
+    border: 1px solid var(--serie);
+    color: var(--serie);
+    padding: 0.32rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    min-height: 30px;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .btn-next-season:active {
+    background: var(--serie);
+    color: var(--ink);
+  }
 
   .item-info {
     display: flex;
@@ -232,12 +339,13 @@
     overflow-wrap: break-word;
     word-break: break-word;
     line-height: 1.3;
+    transition: color 0.2s ease;
   }
 
   .badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.35rem;
     font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
     font-size: 0.68rem;
     letter-spacing: 0.1em;
@@ -246,33 +354,36 @@
     width: fit-content;
   }
 
+  .badge .finished-tag { color: #4caf6d; }
+
   .badge::before {
     content: "";
     width: 6px;
     height: 6px;
     border-radius: 50%;
     background: var(--muted);
+    flex-shrink: 0;
   }
   .item-card[data-type="anime"] .badge::before { background: var(--anime); }
   .item-card[data-type="serie"] .badge::before { background: var(--serie); }
   .item-card[data-type="manga"] .badge::before { background: var(--manga); }
 
-  .item-counter {
+  .counters-row {
     display: flex;
-    align-items: center;
-    gap: 0.4rem;
+    gap: 0.5rem;
     flex-wrap: wrap;
-    justify-content: flex-start;
   }
 
   .counter-group {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    justify-content: center;
+    gap: 0.35rem;
     background: var(--surface-2);
     border: 1px solid var(--line);
-    padding: 0.25rem 0.4rem;
+    padding: 0.35rem 0.5rem;
     border-radius: 999px;
+    flex: 1 1 120px;
   }
 
   .counter-label {
@@ -298,9 +409,10 @@
     justify-content: center;
     touch-action: manipulation;
     flex-shrink: 0;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
   }
 
-  .btn-counter:active { background: var(--serie); color: var(--ink); }
+  .btn-counter:active { background: var(--serie); color: var(--ink); transform: scale(0.92); }
 
   .count-input {
     background: transparent;
@@ -308,7 +420,7 @@
     color: var(--paper);
     font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
     font-weight: 700;
-    width: 40px;
+    width: 42px;
     text-align: center;
     padding: 0.2rem;
     font-size: 0.95rem;
@@ -320,18 +432,6 @@
     -webkit-appearance: none;
     margin: 0;
   }
-
-  .btn-delete {
-    background: transparent;
-    border: none;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 1.15rem;
-    margin-left: 0.3rem;
-    padding: 0.4rem;
-  }
-
-  .btn-delete:active { color: var(--danger); }
 
   /* ---------- Bouton de mise à jour ---------- */
   .btn-update {
@@ -378,8 +478,15 @@
   .empty-state {
     text-align: center;
     color: var(--muted);
-    margin-top: 2.5rem;
+    margin-top: 3rem;
     font-size: 0.9rem;
+  }
+
+  .empty-state .empty-icon {
+    font-size: 1.8rem;
+    display: block;
+    margin-bottom: 0.5rem;
+    opacity: 0.6;
   }
 </style>
 </head>
@@ -477,10 +584,10 @@
         if (type === 'manga') {
           const tome = parseInt(document.getElementById('tome-progress').value) || 0;
           const chapitre = parseInt(document.getElementById('chap-progress').value) || 0;
-          mediaData.push({ id: Date.now(), title, type, tome, chapitre });
+          mediaData.push({ id: Date.now(), title, type, tome, chapitre, finished: false });
         } else {
           const progress = parseInt(document.getElementById('progress').value) || 0;
-          mediaData.push({ id: Date.now(), title, type, progress });
+          mediaData.push({ id: Date.now(), title, type, progress, season: 1, finished: false });
         }
         saveData();
         form.reset();
@@ -540,6 +647,31 @@
       saveData();
     }
 
+    function nextSeason(id) {
+      const item = mediaData.find(i => i.id === id);
+      if (!item) return;
+      const current = item.season || 1;
+      if (!confirm(`Terminer la saison ${current} et passer à la saison ${current + 1} ? (les épisodes repartiront à 0)`)) return;
+
+      mediaData = mediaData.map(i => {
+        if (i.id === id) {
+          return { ...i, season: current + 1, progress: 0 };
+        }
+        return i;
+      });
+      saveData();
+    }
+
+    function toggleFinished(id) {
+      mediaData = mediaData.map(item => {
+        if (item.id === id) {
+          return { ...item, finished: !item.finished };
+        }
+        return item;
+      });
+      saveData();
+    }
+
     function deleteItem(id) {
       if (confirm('Voulez-vous vraiment supprimer cet élément ?')) {
         mediaData = mediaData.filter(item => item.id !== id);
@@ -577,7 +709,7 @@
       }
 
       if (filteredData.length === 0) {
-        mediaList.innerHTML = `<p class="empty-state">Aucun élément trouvé.</p>`;
+        mediaList.innerHTML = `<div class="empty-state"><span class="empty-icon">📺</span>Aucun élément trouvé.</div>`;
         return;
       }
 
@@ -593,53 +725,67 @@
           const chapVal = item.chapitre !== undefined ? item.chapitre : (item.progress || 0);
 
           counterHtml = `
-            <div class="counter-group">
-              <span class="counter-label">Vol.</span>
-              <button class="btn-counter" onclick="updateMangaProgress(${item.id}, 'tome', -1)">-</button>
-              <input type="number"
-                     class="count-input"
-                     value="${tomeVal}"
-                     min="0"
-                     onchange="setMangaProgressDirect(${item.id}, 'tome', this.value)">
-              <button class="btn-counter" onclick="updateMangaProgress(${item.id}, 'tome', 1)">+</button>
-            </div>
+            <div class="counters-row">
+              <div class="counter-group">
+                <span class="counter-label">Vol.</span>
+                <button class="btn-counter" onclick="updateMangaProgress(${item.id}, 'tome', -1)">-</button>
+                <input type="number"
+                       class="count-input"
+                       value="${tomeVal}"
+                       min="0"
+                       onchange="setMangaProgressDirect(${item.id}, 'tome', this.value)">
+                <button class="btn-counter" onclick="updateMangaProgress(${item.id}, 'tome', 1)">+</button>
+              </div>
 
-            <div class="counter-group">
-              <span class="counter-label">Ch.</span>
-              <button class="btn-counter" onclick="updateMangaProgress(${item.id}, 'chapitre', -1)">-</button>
-              <input type="number"
-                     class="count-input"
-                     value="${chapVal}"
-                     min="0"
-                     onchange="setMangaProgressDirect(${item.id}, 'chapitre', this.value)">
-              <button class="btn-counter" onclick="updateMangaProgress(${item.id}, 'chapitre', 1)">+</button>
+              <div class="counter-group">
+                <span class="counter-label">Ch.</span>
+                <button class="btn-counter" onclick="updateMangaProgress(${item.id}, 'chapitre', -1)">-</button>
+                <input type="number"
+                       class="count-input"
+                       value="${chapVal}"
+                       min="0"
+                       onchange="setMangaProgressDirect(${item.id}, 'chapitre', this.value)">
+                <button class="btn-counter" onclick="updateMangaProgress(${item.id}, 'chapitre', 1)">+</button>
+              </div>
             </div>
           `;
         } else {
           counterHtml = `
-            <div class="counter-group">
-              <span class="counter-label">Ep.</span>
-              <button class="btn-counter" onclick="updateProgress(${item.id}, -1)">-</button>
-              <input type="number"
-                     class="count-input"
-                     value="${item.progress || 0}"
-                     min="0"
-                     onchange="setProgressDirect(${item.id}, this.value)">
-              <button class="btn-counter" onclick="updateProgress(${item.id}, 1)">+</button>
+            <div class="season-row">
+              <span class="season-label">Saison <b>${item.season || 1}</b></span>
+              <button class="btn-next-season" onclick="nextSeason(${item.id})">Saison suivante ▶</button>
+            </div>
+            <div class="divider"></div>
+            <div class="counters-row">
+              <div class="counter-group">
+                <span class="counter-label">Ep.</span>
+                <button class="btn-counter" onclick="updateProgress(${item.id}, -1)">-</button>
+                <input type="number"
+                       class="count-input"
+                       value="${item.progress || 0}"
+                       min="0"
+                       onchange="setProgressDirect(${item.id}, this.value)">
+                <button class="btn-counter" onclick="updateProgress(${item.id}, 1)">+</button>
+              </div>
             </div>
           `;
         }
 
         card.innerHTML = `
-          <div class="item-info">
-            <span class="item-title">${item.title}</span>
-            <span class="badge">${item.type}</span>
+          <div class="card-top">
+            <div class="item-info">
+              <span class="item-title">${item.title}</span>
+              <span class="badge">${item.type}${item.finished ? ' <span class="finished-tag">· terminé</span>' : ''}</span>
+            </div>
+            <div class="card-actions">
+              <button class="icon-btn btn-finish-icon${item.finished ? ' active' : ''}" onclick="toggleFinished(${item.id})" title="${item.finished ? 'Marquer comme non terminé' : 'Marquer comme terminé'}">✓</button>
+              <button class="icon-btn btn-delete-icon" onclick="deleteItem(${item.id})" title="Supprimer">🗑️</button>
+            </div>
           </div>
-          <div class="item-counter">
-            ${counterHtml}
-            <button class="btn-delete" onclick="deleteItem(${item.id})" title="Supprimer">🗑️</button>
-          </div>
+          ${counterHtml}
         `;
+
+        if (item.finished) card.classList.add('is-finished');
 
         mediaList.appendChild(card);
       });
