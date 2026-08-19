@@ -753,7 +753,7 @@
           counterHtml = `
             <div class="season-row">
               <span class="season-label">Saison <b>${item.season || 1}</b></span>
-              <button class="btn-next-season" onclick="nextSeason(${item.id})">Saison suivante ▶</button>
+              ${item.finished ? '' : `<button class="btn-next-season" onclick="nextSeason(${item.id})">Saison suivante ▶</button>`}
             </div>
             <div class="divider"></div>
             <div class="counters-row">
